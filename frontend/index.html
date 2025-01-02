@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Generation API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Generation API</h1>
+    <form id="generateForm">
+        <label for="text">Enter Text:</label><br>
+        <textarea id="text" required></textarea><br><br>
+        <label for="num_threads">Number of Threads:</label><br>
+        <input type="number" id="num_threads" min="1" max="10" required><br><br>
+        <button type="submit">Generate</button>
+    </form>
+    <h2>Output</h2>
+    <pre id="output"></pre>
+
+    <script>
+        const form = document.getElementById('generateForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('text').value;
+            const num_threads = parseInt(document.getElementById('num_threads').value);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/generate/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        requests: [{ question: text, context: "Test context" }],
+                        num_threads
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+                } else {
+                    document.getElementById('output').textContent = `Error: ${response.status}`;
+                }
+            } catch (error) {
+                document.getElementById('output').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
